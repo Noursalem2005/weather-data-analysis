@@ -280,120 +280,6 @@ def plot_yearly_trend(df: pd.DataFrame, stats: dict) -> str:
     return str(output_path)
 
 
-def plot_temperature_distribution(df: pd.DataFrame, stats: dict) -> str:
-    """
-    Create a distribution plot of yearly maximum temperatures.
-
-    Args:
-        df: DataFrame with yearly data
-        stats: Dictionary of computed statistics
-
-    Returns:
-        Path to saved figure
-    """
-    fig, axes = plt.subplots(1, 2, figsize=FIGURE_SIZE_WIDE)
-
-    temps = df["max_temperature"].values
-
-    # Left: Histogram with KDE
-    ax1 = axes[0]
-    sns.histplot(
-        temps,
-        kde=True,
-        ax=ax1,
-        color=COLOR_PRIMARY,
-        edgecolor="white",
-        linewidth=1.5,
-        bins=10,
-    )
-
-    ax1.axvline(
-        stats["mean"],
-        color="red",
-        linestyle="--",
-        linewidth=2,
-        label=f'Mean: {stats["mean"]:.1f}°C',
-    )
-    ax1.axvline(
-        stats["mean"] + stats["std"],
-        color="orange",
-        linestyle=":",
-        linewidth=2,
-        label=f'+1σ: {stats["mean"] + stats["std"]:.1f}°C',
-    )
-    ax1.axvline(
-        stats["mean"] - stats["std"],
-        color="orange",
-        linestyle=":",
-        linewidth=2,
-        label=f'-1σ: {stats["mean"] - stats["std"]:.1f}°C',
-    )
-
-    ax1.set_xlabel("Maximum Temperature (°C)", fontsize=11, fontweight="bold")
-    ax1.set_ylabel("Frequency", fontsize=11, fontweight="bold")
-    ax1.set_title(
-        "Distribution of Yearly Maximum Temperatures", fontsize=12, fontweight="bold"
-    )
-    ax1.legend(fontsize=9)
-    ax1.grid(True, alpha=0.3)
-
-    # Right: Box plot
-    ax2 = axes[1]
-    box = ax2.boxplot(temps, patch_artist=True, widths=0.6)
-    box["boxes"][0].set_facecolor(COLOR_PRIMARY)
-    box["boxes"][0].set_alpha(0.7)
-    box["medians"][0].set_color("red")
-    box["medians"][0].set_linewidth(2)
-
-    # Overlay individual points
-    ax2.scatter(
-        np.ones(len(temps)),
-        temps,
-        alpha=0.6,
-        s=50,
-        color="darkblue",
-        zorder=3,
-        label="Individual Years",
-    )
-
-    ax2.set_ylabel("Maximum Temperature (°C)", fontsize=11, fontweight="bold")
-    ax2.set_title("Temperature Box Plot", fontsize=12, fontweight="bold")
-    ax2.set_xticklabels(["Yearly Max\nTemperature"])
-    ax2.grid(True, alpha=0.3, axis="y")
-
-    # Add statistics text
-    textstr = f'n = {len(temps)}\nμ = {stats["mean"]:.1f}°C\nσ = {stats["std"]:.2f}°C'
-    ax2.text(
-        1.3,
-        stats["mean"],
-        textstr,
-        fontsize=10,
-        verticalalignment="center",
-        bbox=dict(boxstyle="round", facecolor="wheat", alpha=0.8),
-    )
-
-    plt.suptitle(
-        f"Yearly Maximum Temperature Distribution - {LOCATION_NAME}",
-        fontsize=14,
-        fontweight="bold",
-        y=1.02,
-    )
-    plt.tight_layout()
-
-    output_path = OUTPUT_DIR / "02_temperature_distribution.png"
-    plt.savefig(
-        output_path,
-        dpi=FIGURE_DPI,
-        bbox_inches="tight",
-        facecolor="white",
-        edgecolor="none",
-    )
-    plt.close()
-
-    print(f"  ✓ Saved: {output_path}")
-    return str(output_path)
-
-
 def plot_decade_comparison(df: pd.DataFrame) -> str:
     """
     Create a decade-by-decade comparison visualization.
@@ -495,7 +381,6 @@ def main():
     # Generate visualizations
     print("\n🎨 Generating visualizations...")
     plot_yearly_trend(df, stats)
-    plot_temperature_distribution(df, stats)
     plot_decade_comparison(df)
 
     print("\n" + "=" * 70)

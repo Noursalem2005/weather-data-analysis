@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.0] - 2025-01-XX
+
+### Changed
+
+- Restructured Final Report to focus on Map-Reduce as the core project component
+- Added detailed code snippets for MAP, SHUFFLE, and REDUCE phases in report
+- Simplified dashboard to 5 essential panels (removed redundant heatmaps)
+- Cleaned up unused visualization functions from analysis modules
+
+### Removed
+
+- Temperature distribution histogram (redundant with trend analysis)
+- Temperature heatmap (consolidated into dashboard)
+- Wind heatmap visualization
+- Correlation matrix (not essential for distributed processing focus)
+- Seasonal boxplot standalone visualization
+
 ## [2.0.0] - 2024-12-05
 
 ### Added
@@ -10,13 +27,11 @@ All notable changes to this project will be documented in this file.
 - **Main Pipeline Runner** (`main.py`): Single command to run the entire analysis pipeline
 - **Enhanced Visualizations**:
   - Comprehensive analysis dashboard (`00_analysis_dashboard.png`)
-  - Temperature distribution with histogram and box plot
   - Decade comparison bar chart
   - Temperature cycle line chart
   - Precipitation bar chart
-  - Temperature climate heatmap
-  - Seasonal comparison box plots
-  - Correlation matrix heatmap
+  - Rainfall polar chart
+  - Monthly temperature pattern
 - **Improved Documentation**:
   - Comprehensive README with badges and diagrams
   - Final project report with all visualizations

@@ -3,7 +3,7 @@ Weather Analysis Dashboard
 ==========================
 
 This module creates a comprehensive multi-panel dashboard that combines
-all key visualizations into a single publication-quality figure.
+key visualizations into a single publication-quality figure.
 
 The dashboard provides:
 - Overview of yearly trends
@@ -15,7 +15,7 @@ This is ideal for presentations and reports where a single figure
 needs to convey the complete analysis.
 
 Input: daily_weather.csv, yearly_max_temp.csv
-Output: dashboard.png in output/ directory
+Output: 00_analysis_dashboard.png in output/ directory
 
 Usage:
     python create_dashboard.py
@@ -24,8 +24,6 @@ Usage:
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
-from matplotlib.gridspec import GridSpec
 
 from config import (
     ANOMALY_THRESHOLD_STD,
@@ -58,20 +56,19 @@ def create_dashboard():
     print("=" * 70)
 
     # Load data
-    print("\n📂 Loading data...")
+    print("\n[Loading] Reading datasets...")
     daily, yearly = load_data()
 
-    # Create figure with grid layout
-    fig = plt.figure(figsize=(20, 16))
-    gs = GridSpec(3, 3, figure=fig, hspace=0.35, wspace=0.3)
+    # Create figure with 2x2 grid layout + stats panel
+    fig = plt.figure(figsize=(18, 14))
 
     # Apply style
     plt.style.use("seaborn-v0_8-whitegrid")
 
     # =========================================================================
-    # Panel 1: Yearly Temperature Trend (spanning 2 columns)
+    # Panel 1: Yearly Temperature Trend (top-left, larger)
     # =========================================================================
-    ax1 = fig.add_subplot(gs[0, :2])
+    ax1 = fig.add_axes([0.05, 0.55, 0.55, 0.38])  # [left, bottom, width, height]
 
     years = yearly["year"].values
     temps = yearly["max_temperature"].values
@@ -95,7 +92,7 @@ def create_dashboard():
         "--",
         linewidth=2.5,
         color="#2ecc71",
-        label=f"Trend ({slope*10:+.2f}°C/decade)",
+        label=f"Trend ({slope*10:+.2f} C/decade)",
     )
 
     # Highlight anomalies
@@ -117,7 +114,7 @@ def create_dashboard():
 
     ax1.axhline(y=mean_temp, color="gray", linestyle=":", alpha=0.7)
     ax1.set_xlabel("Year", fontsize=11, fontweight="bold")
-    ax1.set_ylabel("Max Temperature (°C)", fontsize=11, fontweight="bold")
+    ax1.set_ylabel("Max Temperature (C)", fontsize=11, fontweight="bold")
     ax1.set_title(
         "Yearly Maximum Temperature Trend (2000-2024)", fontsize=13, fontweight="bold"
     )
@@ -125,9 +122,9 @@ def create_dashboard():
     ax1.grid(True, alpha=0.3)
 
     # =========================================================================
-    # Panel 2: Key Statistics Box
+    # Panel 2: Key Statistics Box (top-right)
     # =========================================================================
-    ax2 = fig.add_subplot(gs[0, 2])
+    ax2 = fig.add_axes([0.65, 0.55, 0.30, 0.38])
     ax2.axis("off")
 
     # Calculate statistics
@@ -137,24 +134,24 @@ def create_dashboard():
     stats_text = f"""
     KEY STATISTICS
     ─────────────────────────
-    
+
     Analysis Period
        2000 - 2024 ({len(yearly)} years)
-    
+
     Temperature Summary
-       Mean: {mean_temp:.1f}°C
-       Std Dev: {std_temp:.2f}°C
-       Range: {temps.min():.1f} - {temps.max():.1f}°C
-    
+       Mean: {mean_temp:.1f}C
+       Std Dev: {std_temp:.2f}C
+       Range: {temps.min():.1f} - {temps.max():.1f}C
+
     Hottest Year
-       {int(hottest_year['year'])}: {hottest_year['max_temperature']:.1f}°C
-    
+       {int(hottest_year['year'])}: {hottest_year['max_temperature']:.1f}C
+
     Coolest Year
-       {int(coolest_year['year'])}: {coolest_year['max_temperature']:.1f}°C
-    
+       {int(coolest_year['year'])}: {coolest_year['max_temperature']:.1f}C
+
     Trend Analysis
-       {slope*10:+.2f}°C per decade
-       {"Warming Trend" if slope > 0 else "Cooling Trend"}
+       {slope*10:+.2f}C per decade
+       {"[Warming Trend]" if slope > 0 else "[Cooling Trend]"}
     """
 
     ax2.text(
@@ -174,9 +171,9 @@ def create_dashboard():
     )
 
     # =========================================================================
-    # Panel 3: Monthly Temperature Pattern
+    # Panel 3: Monthly Temperature Pattern (bottom-left)
     # =========================================================================
-    ax3 = fig.add_subplot(gs[1, 0])
+    ax3 = fig.add_axes([0.05, 0.08, 0.28, 0.38])
 
     monthly = (
         daily.groupby("month")
@@ -206,16 +203,16 @@ def create_dashboard():
     )
 
     ax3.set_xticks(x)
-    ax3.set_xticklabels(monthly["month_name"], rotation=45, ha="right", fontsize=9)
-    ax3.set_ylabel("Temperature (°C)", fontsize=10, fontweight="bold")
+    ax3.set_xticklabels(monthly["month_name"], rotation=45, ha="right", fontsize=8)
+    ax3.set_ylabel("Temperature (C)", fontsize=10, fontweight="bold")
     ax3.set_title("Monthly Average Temperatures", fontsize=12, fontweight="bold")
-    ax3.legend(fontsize=9)
+    ax3.legend(fontsize=8)
     ax3.grid(True, alpha=0.3, axis="y")
 
     # =========================================================================
-    # Panel 4: Rainfall Polar Plot
+    # Panel 4: Rainfall Polar Plot (bottom-center)
     # =========================================================================
-    ax4 = fig.add_subplot(gs[1, 1], polar=True)
+    ax4 = fig.add_axes([0.38, 0.08, 0.28, 0.38], polar=True)
 
     precip_monthly = daily.groupby("month")["precipitation"].mean()
     angles = np.linspace(0, 2 * np.pi, 12, endpoint=False).tolist()
@@ -227,102 +224,68 @@ def create_dashboard():
     ax4.plot(angles, rainfall, "o-", linewidth=2, color="#3498db", markersize=6)
     ax4.fill(angles, rainfall, alpha=0.35, color="#3498db")
     ax4.set_xticks(angles[:-1])
-    ax4.set_xticklabels(list(MONTH_NAMES.values()), fontsize=9)
+    ax4.set_xticklabels(list(MONTH_NAMES.values()), fontsize=8)
     ax4.set_theta_direction(-1)
     ax4.set_theta_offset(np.pi / 2)
     ax4.set_title("Monthly Rainfall Pattern", fontsize=12, fontweight="bold", pad=15)
 
     # =========================================================================
-    # Panel 5: Seasonal Box Plot
+    # Panel 5: Decade Comparison (bottom-right)
     # =========================================================================
-    ax5 = fig.add_subplot(gs[1, 2])
+    ax5 = fig.add_axes([0.70, 0.08, 0.26, 0.38])
 
-    def get_season(month):
-        for season, months in SEASONS.items():
-            if month in months:
-                return season
-        return "Unknown"
+    yearly_copy = yearly.copy()
+    yearly_copy["decade"] = (yearly_copy["year"] // 10) * 10
+    yearly_copy["decade_label"] = yearly_copy["decade"].astype(str) + "s"
 
-    daily_copy = daily.copy()
-    daily_copy["season"] = daily_copy["month"].apply(get_season)
+    decade_stats = yearly_copy.groupby("decade_label")["max_temperature"].agg(
+        ["mean", "min", "max", "std"]
+    )
+    decade_stats = decade_stats.reset_index()
 
-    season_order = ["Winter", "Spring", "Summer", "Autumn"]
-    colors = ["#3498db", "#2ecc71", "#e74c3c", "#f39c12"]
+    x = np.arange(len(decade_stats))
+    colors = plt.cm.RdYlBu_r(np.linspace(0.2, 0.8, len(decade_stats)))
 
-    box_data = [
-        daily_copy[daily_copy["season"] == s]["max_temp"].dropna() for s in season_order
-    ]
-    bp = ax5.boxplot(box_data, patch_artist=True, labels=season_order)
+    bars = ax5.bar(
+        x,
+        decade_stats["mean"],
+        color=colors,
+        edgecolor="black",
+        linewidth=1.5,
+        alpha=0.8,
+        yerr=decade_stats["std"],
+        capsize=5,
+        error_kw={"linewidth": 2},
+    )
 
-    for patch, color in zip(bp["boxes"], colors):
-        patch.set_facecolor(color)
-        patch.set_alpha(0.7)
+    ax5.set_xticks(x)
+    ax5.set_xticklabels(decade_stats["decade_label"], fontsize=10, fontweight="bold")
+    ax5.set_xlabel("Decade", fontsize=10, fontweight="bold")
+    ax5.set_ylabel("Avg Max Temp (°C)", fontsize=10, fontweight="bold")
+    ax5.set_title("Decade Comparison", fontsize=12, fontweight="bold")
 
-    ax5.set_ylabel("Max Temperature (°C)", fontsize=10, fontweight="bold")
-    ax5.set_title("Temperature by Season", fontsize=12, fontweight="bold")
+    # Add value labels on bars
+    for bar, val in zip(bars, decade_stats["mean"]):
+        height = bar.get_height()
+        ax5.text(
+            bar.get_x() + bar.get_width() / 2.0,
+            height + 0.3,
+            f"{val:.1f}°C",
+            ha="center",
+            va="bottom",
+            fontsize=8,
+            fontweight="bold",
+        )
+
     ax5.grid(True, alpha=0.3, axis="y")
-
-    # =========================================================================
-    # Panel 6: Temperature Heatmap
-    # =========================================================================
-    ax6 = fig.add_subplot(gs[2, :2])
-
-    temp_pivot = daily.pivot_table(
-        values="max_temp", index="year", columns="month", aggfunc="mean"
-    )
-    temp_pivot.columns = [MONTH_NAMES[m] for m in temp_pivot.columns]
-
-    sns.heatmap(
-        temp_pivot,
-        cmap="RdYlBu_r",
-        annot=True,
-        fmt=".0f",
-        linewidths=0.5,
-        cbar_kws={"label": "Avg Max Temp (°C)"},
-        ax=ax6,
-        annot_kws={"size": 8},
-    )
-
-    ax6.set_xlabel("Month", fontsize=11, fontweight="bold")
-    ax6.set_ylabel("Year", fontsize=11, fontweight="bold")
-    ax6.set_title(
-        "Temperature Climate Matrix (Year × Month)", fontsize=12, fontweight="bold"
-    )
-
-    # =========================================================================
-    # Panel 7: Correlation Matrix
-    # =========================================================================
-    ax7 = fig.add_subplot(gs[2, 2])
-
-    numeric_cols = ["max_temp", "min_temp", "precipitation", "max_wind"]
-    col_labels = ["Max T", "Min T", "Precip", "Wind"]
-    corr_matrix = daily[numeric_cols].corr()
-
-    mask = np.triu(np.ones_like(corr_matrix, dtype=bool), k=1)
-    sns.heatmap(
-        corr_matrix,
-        mask=mask,
-        annot=True,
-        fmt=".2f",
-        cmap="coolwarm",
-        center=0,
-        linewidths=1,
-        square=True,
-        xticklabels=col_labels,
-        yticklabels=col_labels,
-        annot_kws={"size": 11, "weight": "bold"},
-        ax=ax7,
-    )
-
-    ax7.set_title("Variable Correlations", fontsize=12, fontweight="bold")
 
     # =========================================================================
     # Main Title
     # =========================================================================
     fig.suptitle(
         f"Weather Data Analysis Dashboard - {LOCATION_NAME}\n"
-        f"Distributed Processing Project | 2000-2024",
-        fontsize=18,
+        f"Distributed Processing Project | Map-Reduce Analysis | 2000-2024",
+        fontsize=16,
         fontweight="bold",
         y=0.98,
     )
@@ -338,9 +301,9 @@ def create_dashboard():
     )
     plt.close()
 
-    print(f"\n  ✓ Dashboard saved: {output_path}")
+    print(f"\n  [OK] Dashboard saved: {output_path}")
     print("\n" + "=" * 70)
-    print("✅ Dashboard created successfully!")
+    print("[SUCCESS] Dashboard created successfully!")
     print("=" * 70)
 
     return str(output_path)
