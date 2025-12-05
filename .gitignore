@@ -1,0 +1,48 @@
+# Git ignore file for Python projects and generated data
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data files (large, can be regenerated)
+data/weather_raw.jsonl
+data/daily_weather.csv
+data/yearly_max_temp.csv
+
+# Output files (generated)
+outputs/*.png
