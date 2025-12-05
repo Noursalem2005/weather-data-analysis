@@ -40,9 +40,11 @@ env/
 Thumbs.db
 
 # Data files (large, can be regenerated)
-data/weather_raw.jsonl
-data/daily_weather.csv
-data/yearly_max_temp.csv
+# Uncomment the lines below if you don't want to track data files
+# data/weather_raw.jsonl
+# data/daily_weather.csv
+# data/yearly_max_temp.csv
 
-# Output files (generated)
-outputs/*.png
+# Output files (generated, can be regenerated)
+# Uncomment if you don't want to track output images
+# output/*.png
